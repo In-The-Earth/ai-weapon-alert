@@ -8,8 +8,7 @@ y = "2"
 
 myquery = { "cam_id": y }
 
-mydoc = mycol.find()
-
+mydoc = mycol.find(myquery)
 
 print(len(list(mydoc.clone())))
 for x in mydoc:

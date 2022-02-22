@@ -211,7 +211,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                     time.sleep(5) # wait 5 seconds
                     print("wait 5 sec complete")
                 # return True
-            elif "knife" in s:
+            elif "knife" is s:
                 count_knife +=1
                 if count_knife == 10 :
                     parser = datetime.datetime.now()
