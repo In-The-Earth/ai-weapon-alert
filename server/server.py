@@ -6,6 +6,7 @@ from imutils.video import WebcamVideoStream
 from flask.helpers import url_for
 import cv2
 from bson.json_util import dumps, loads
+from flask_cors import CORS
 # run(weights="pistol_v2.pt",conf_thres=0.5,source=0)
 # data = run(weights="yolov5s.pt",conf_thres=0.5,source="data/images/woman.jpg")
 # print(data)
@@ -18,6 +19,7 @@ import pymongo
 
 app = Flask(__name__)
 
+CORS(app)
 home_dir = Path(__file__).parent
 UPLOAD_FOLDER = os.path.join(home_dir, "static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -63,7 +65,7 @@ def Home():
             text += f'Date: {date}\n'
             text += f'Time: {timenow}'
             
-            # notifyFile(image.filename,text)
+            notifyFile(image.filename,text)
             socketio.emit('my event',{'url' : 'urlforimg','detect':weapon_type,'location':location,'date':date,'time':timenow,'idcam':info})
 
             return jsonify({'status': 'found'})
@@ -87,7 +89,7 @@ def Images(img):
 
 @app.route('/getdb',methods=['GET'])
 def db():
-    return jsonify(json_data)
+    return json_data
 
 # # Overide the update method in WebcamVideoStream class
 # class webcam(WebcamVideoStream):

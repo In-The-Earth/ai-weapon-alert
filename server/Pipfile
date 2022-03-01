@@ -23,6 +23,7 @@ pymongo = "*"
 dnspython = "*"
 flask-socketio = "*"
 imutils = "*"
+flask-cors = "*"
 
 [dev-packages]
 

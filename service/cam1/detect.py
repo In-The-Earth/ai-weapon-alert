@@ -226,7 +226,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                     #send api
                     url = 'http://127.0.0.1:8000/home'
                     pload1 = {'img': open(image_path,'rb')}
-                    pload2 = {'info': '1','wptype': 'knife'}
+                    pload2 = {'info': '1','wptype': 'knife','date': date,'timenow': timenow}
                     r = requests.post(url,files = pload1 ,data = pload2)
                     print(r.json())
                     
