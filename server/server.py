@@ -5,6 +5,7 @@ import imutils
 from imutils.video import WebcamVideoStream
 from flask.helpers import url_for
 import cv2
+from bson.json_util import dumps, loads
 # run(weights="pistol_v2.pt",conf_thres=0.5,source=0)
 # data = run(weights="yolov5s.pt",conf_thres=0.5,source="data/images/woman.jpg")
 # print(data)
@@ -21,12 +22,16 @@ home_dir = Path(__file__).parent
 UPLOAD_FOLDER = os.path.join(home_dir, "static")
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 myclient = pymongo.MongoClient("mongodb+srv://app:weapon123@cluster0.mauiw.mongodb.net/")
 mydb = myclient["weapon"]
 mycol = mydb["cameras"]
-num_cams = [i for i in range(10)]
+xx = mycol.find()
+list_col = list(xx)
+json_data = dumps(list_col, indent = 2)
+print(json_data)
+# num_cams = [i for i in range(10)]
 
 @app.route('/home',methods=['POST'])
 def Home():
@@ -57,11 +62,9 @@ def Home():
             text += f'Location: {location}\n'
             text += f'Date: {date}\n'
             text += f'Time: {timenow}'
+            
             # notifyFile(image.filename,text)
-
-            # handle_my_custom_event("test1asdasdasdasdadasdasdasdasdasd")
-            # socketio.emit('my event','test02asdasdjkadhjasjdhabhjd')
-            socketio.emit('log', dict(data=str('testsocketio')), broadcast=True)
+            socketio.emit('my event',{'url' : 'urlforimg','detect':weapon_type,'location':location,'date':date,'time':timenow,'idcam':info})
 
             return jsonify({'status': 'found'})
         else :
@@ -82,41 +85,39 @@ def Test():
 def Images(img):
     return send_from_directory('static', img)
 
-@socketio.on('log')
-def on_connect():
-    print('sdfsdfsdfsf')
-    payload = dict(data='Connected')
-    emit('log', payload, broadcast=True)
+@app.route('/getdb',methods=['GET'])
+def db():
+    return jsonify(json_data)
 
-# Overide the update method in WebcamVideoStream class
-class webcam(WebcamVideoStream):
-    def update(self):
-        while True:
-            # if the thread indicator variable is set, stop the thread
-            if self.stopped:
-                return
-            # otherwise, read the next frame from the stream
-            (self.grabbed, self.frame) = self.stream.read()
-            # custom
-            if not self.grabbed:
-                self.stop()
+# # Overide the update method in WebcamVideoStream class
+# class webcam(WebcamVideoStream):
+#     def update(self):
+#         while True:
+#             # if the thread indicator variable is set, stop the thread
+#             if self.stopped:
+#                 return
+#             # otherwise, read the next frame from the stream
+#             (self.grabbed, self.frame) = self.stream.read()
+#             # custom
+#             if not self.grabbed:
+#                 self.stop()
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# @app.route("/")
+# def index():
+#     return render_template("index.html")
 
-def gen(id):
-    vs = webcam(src=id).start()
-    while True:
-        frame = vs.read()
-        frame = imutils.resize(frame, width=500)
-        ret, buffer = cv2.imencode(".jpg", frame)
-        frame = buffer.tobytes()
-        yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + frame + b"\r\n")
+# def gen(id):
+#     vs = webcam(src=id).start()
+#     while True:
+#         frame = vs.read()
+#         frame = imutils.resize(frame, width=500)
+#         ret, buffer = cv2.imencode(".jpg", frame)
+#         frame = buffer.tobytes()
+#         yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + frame + b"\r\n")
 
-@app.route("/cameras/<int:id>",methods=['GET'])
-def video(id):
-    return Response(gen(id), mimetype="multipart/x-mixed-replace; boundary=frame")
+# @app.route("/cameras/<int:id>",methods=['GET'])
+# def video(id):
+#     return Response(gen(id), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == '__main__':
     print('Server Start')
