@@ -66,7 +66,7 @@ def Home():
             text += f'Time: {timenow}'
             
             notifyFile(image.filename,text)
-            socketio.emit('my event',{'url' : 'urlforimg','detect':weapon_type,'location':location,'date':date,'time':timenow,'idcam':info})
+            socketio.emit('my event',{'url' : f'http://127.0.0.1:8000/static/{image.filename}','detect':weapon_type,'location':location,'date':date,'time':timenow,'idcam':info})
 
             return jsonify({'status': 'found'})
         else :
