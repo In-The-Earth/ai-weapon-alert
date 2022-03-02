@@ -190,7 +190,7 @@ def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
             LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
             if "handgun" in s:
                 count_gun += 1
-                if count_gun == 10 :
+                if count_gun == 5 :
                     parser = datetime.datetime.now()
                     now = parser.strftime("%d-%m-%Y_%H-%M-%S")
                     date = parser.strftime("%d/%m/%Y")
@@ -214,7 +214,7 @@ def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
                 # return True
             elif "knife" in s:
                 count_knife +=1
-                if count_knife == 10 :
+                if count_knife == 5 :
                     parser = datetime.datetime.now()
                     now = parser.strftime("%d-%m-%Y_%H-%M-%S")
                     date = parser.strftime("%d/%m/%Y")
