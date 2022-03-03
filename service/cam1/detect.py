@@ -37,6 +37,7 @@ import time
 import datetime
 import requests
 
+idCamera = '1'
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -205,7 +206,7 @@ def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
                     #send api
                     url = 'http://127.0.0.1:8000/home'
                     pload1 = {'img': open(image_path,'rb')}
-                    pload2 = {'info': '1','wptype': 'handgun','date': date,'timenow': timenow}
+                    pload2 = {'info': idCamera,'wptype': 'handgun','date': date,'timenow': timenow}
                     r = requests.post(url,files = pload1 ,data = pload2)
                     print(r.json())
                     
@@ -229,7 +230,7 @@ def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
                     #send api
                     url = 'http://127.0.0.1:8000/home'
                     pload1 = {'img': open(image_path,'rb')}
-                    pload2 = {'info': '1','wptype': 'knife','date': date,'timenow': timenow}
+                    pload2 = {'info': idCamera,'wptype': 'knife','date': date,'timenow': timenow}
                     r = requests.post(url,files = pload1 ,data = pload2)
                     print(r.json())
                     
@@ -275,11 +276,12 @@ def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
 
-
+setWegihts = 'best_sohas.pt'
+setUrl = 'http://127.0.0.1:5000/video_feed/0'
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'lastv2.pt', help='model path(s)')
-    parser.add_argument('--source', type=str, default=ROOT / 'http://127.0.0.1:5000/video_feed/0', help='file/dir/URL/glob, 0 for webcam')
+    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / setWegihts, help='model path(s)')
+    parser.add_argument('--source', type=str, default=ROOT / setUrl, help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
     parser.add_argument('--conf-thres', type=float, default=0.55, help='confidence threshold')

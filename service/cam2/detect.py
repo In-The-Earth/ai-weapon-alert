@@ -37,6 +37,7 @@ import time
 import datetime
 import requests
 
+idCamera = '2'
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -52,11 +53,11 @@ from utils.torch_utils import select_device, time_sync
 
 
 @torch.no_grad()
-def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
-        source=ROOT / 'data/images',  # file/dir/URL/glob, 0 for webcam
+def run(weights=ROOT / 'lastv2.pt',  # model.pt path(s)
+        source=ROOT / 'http://127.0.0.1:5000/video_feed/0',  # file/dir/URL/glob, 0 for webcam
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
         imgsz=(640, 640),  # inference size (height, width)
-        conf_thres=0.25,  # confidence threshold
+        conf_thres=0.55,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -64,7 +65,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         save_txt=False,  # save results to *.txt
         save_conf=False,  # save confidences in --save-txt labels
         save_crop=False,  # save cropped prediction boxes
-        nosave=False,  # do not save images/videos
+        nosave=True,  # do not save images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
         agnostic_nms=False,  # class-agnostic NMS
         augment=False,  # augmented inference
@@ -175,7 +176,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
-                    if save_img or save_crop or view_img:  # Add bbox to image
+                    # if save_img or save_crop or view_img:  # Add bbox to image
+                    if save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
@@ -189,7 +191,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
             LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
             if "handgun" in s:
                 count_gun += 1
-                if count_gun == 10 :
+                if count_gun == 5 :
                     parser = datetime.datetime.now()
                     now = parser.strftime("%d-%m-%Y_%H-%M-%S")
                     date = parser.strftime("%d/%m/%Y")
@@ -204,18 +206,20 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                     #send api
                     url = 'http://127.0.0.1:8000/home'
                     pload1 = {'img': open(image_path,'rb')}
-                    pload2 = {'info': '1','wptype': 'handgun','date': date,'timenow': timenow}
+                    pload2 = {'info': idCamera,'wptype': 'handgun','date': date,'timenow': timenow}
                     r = requests.post(url,files = pload1 ,data = pload2)
                     print(r.json())
                     
                     time.sleep(5) # wait 5 seconds
                     print("wait 5 sec complete")
                 # return True
-            elif "knife" is s:
+            elif "knife" in s:
                 count_knife +=1
-                if count_knife == 10 :
+                if count_knife == 5 :
                     parser = datetime.datetime.now()
                     now = parser.strftime("%d-%m-%Y_%H-%M-%S")
+                    date = parser.strftime("%d/%m/%Y")
+                    timenow = parser.strftime("%H:%M:%S")
                     print(now)
 
                     image_path = f'imgweapon/{now}.jpg'
@@ -226,7 +230,7 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                     #send api
                     url = 'http://127.0.0.1:8000/home'
                     pload1 = {'img': open(image_path,'rb')}
-                    pload2 = {'info': '1','wptype': 'knife'}
+                    pload2 = {'info': idCamera,'wptype': 'knife','date': date,'timenow': timenow}
                     r = requests.post(url,files = pload1 ,data = pload2)
                     print(r.json())
                     
@@ -272,14 +276,15 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
 
-
+setWegihts = 'best_sohas.pt'
+setUrl = 'http://127.0.0.1:5000/video_feed/0'
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
-    parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob, 0 for webcam')
+    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / setWegihts, help='model path(s)')
+    parser.add_argument('--source', type=str, default=ROOT / setUrl, help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
-    parser.add_argument('--conf-thres', type=float, default=0.25, help='confidence threshold')
+    parser.add_argument('--conf-thres', type=float, default=0.55, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='NMS IoU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
