@@ -1,4 +1,6 @@
 from msilib.schema import File
+
+from importlib_metadata import NullFinder
 from detect import run
 from lineservice import notifyFile
 import imutils
@@ -26,14 +28,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-myclient = pymongo.MongoClient("mongodb+srv://app:weapon123@cluster0.mauiw.mongodb.net/")
-mydb = myclient["weapon"]
-mycol = mydb["cameras"]
-xx = mycol.find()
-list_col = list(xx)
-json_data = dumps(list_col, indent = 2)
-print(json_data)
+def readDB():
+    myclient = pymongo.MongoClient("mongodb+srv://app:weapon123@cluster0.mauiw.mongodb.net/")
+    mydb = myclient["weapon"]
+    mycol = mydb["cameras"]
+    return mycol
+# print(json_data)
 # num_cams = [i for i in range(10)]
+
+def GetJsonDB():
+    xx = readDB().find()
+    list_col = list(xx)
+    json_data = dumps(list_col, indent = 2)
+    return json_data
 
 @app.route('/home',methods=['POST'])
 def Home():
@@ -48,10 +55,10 @@ def Home():
     text = ''
 
     myquery = { "cam_id": info }
-    mydoc = mycol.find(myquery)
+    mydoc = readDB().find(myquery)
     if len(list(mydoc.clone())) == 1 :
         for x in mydoc:
-            location = "" + x["location"]
+            location = "" + x["info"]
     else :
         location = "Not found location"
 
@@ -75,13 +82,6 @@ def Home():
         print(e)
         return {},400
 
-@app.route('/test',methods=['POST'])
-def Test():
-    image = request.files['img']
-    info = request.form['info']
-    print(image.filename)
-    print(info)
-    return jsonify({'status': 'test'})
 
 @app.route('/static/<img>',methods=['GET'])
 def Images(img):
@@ -89,37 +89,25 @@ def Images(img):
 
 @app.route('/getdb',methods=['GET'])
 def db():
-    return json_data
+    return GetJsonDB()
 
-# # Overide the update method in WebcamVideoStream class
-# class webcam(WebcamVideoStream):
-#     def update(self):
-#         while True:
-#             # if the thread indicator variable is set, stop the thread
-#             if self.stopped:
-#                 return
-#             # otherwise, read the next frame from the stream
-#             (self.grabbed, self.frame) = self.stream.read()
-#             # custom
-#             if not self.grabbed:
-#                 self.stop()
+@app.route('/addDB',methods=['POST'])
+def AddDB():
+    cam_id = str(len(list(readDB().find().clone()))+1)
+    url = request.form['url']
+    info = request.form['info']
+    name = request.form['name']
+    display = False
+    mydict = { "cam_id": cam_id, "info": info, "image": url, "name": name, "display": display}
+    readDB().insert_one(mydict)
+    return jsonify({'status': 'add DB done'})
 
-# @app.route("/")
-# def index():
-#     return render_template("index.html")
-
-# def gen(id):
-#     vs = webcam(src=id).start()
-#     while True:
-#         frame = vs.read()
-#         frame = imutils.resize(frame, width=500)
-#         ret, buffer = cv2.imencode(".jpg", frame)
-#         frame = buffer.tobytes()
-#         yield (b"--frame\r\n" b"Content-Type: image/jpg\r\n\r\n" + frame + b"\r\n")
-
-# @app.route("/cameras/<int:id>",methods=['GET'])
-# def video(id):
-#     return Response(gen(id), mimetype="multipart/x-mixed-replace; boundary=frame")
+@app.route('/deleteDB',methods=['POST'])
+def DeleteDB():
+    cam_id = request.form['cam_id']
+    myquery1 = { "cam_id": cam_id }
+    readDB().delete_one(myquery1)
+    return jsonify({'status': 'delete DB done'})
 
 if __name__ == '__main__':
     print('Server Start')
