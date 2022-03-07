@@ -93,7 +93,15 @@ def db():
 
 @app.route('/addDB',methods=['POST'])
 def AddDB():
-    cam_id = str(len(list(readDB().find().clone()))+1)
+    num_cam = len(list(readDB().find().clone()))
+    cam_id = str(num_cam+1)
+    for x in range(num_cam):
+        y = str(x+1)
+        mycol = readDB()
+        myquery = { "cam_id": y }
+        mydoc = mycol.find(myquery)
+        if len(list(mydoc.clone())) == 0:
+            cam_id = y
     url = request.form['url']
     info = request.form['info']
     name = request.form['name']
