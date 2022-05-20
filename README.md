@@ -23,7 +23,7 @@ Weapon-Alert Web Applicaion for CS-project.
 ## Getting Start
 Weapon Alert is Web Application for Detect weapon include handgun and knife with human, then alerts to the web page and line application notify.
 
-> For Run this project completely, you need to clone frontend frist : [HERE](https://github.com/GunAyng/project-weapon-alert)
+> For Run this project completely, you need to clone frontend frist : [HERE](https://github.com/In-The-Earth/project-weapon-alert-front-end)
 
 ### installing
 install server
