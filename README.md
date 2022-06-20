@@ -14,7 +14,6 @@
 
 Weapon Alert arises from the fact that organizers foresee the problem of the crime. Attempting to report the incident could hurt the person that trying to signal for help and sometimes may not be in time, to reduce the risk of danger to the reporter that may occur. To solve this problem, the author has developed a Weapon-alert. It is a web application that has a camera system with artificial intelligence to detect weapons and immediately alerts without having any button to press or call. Weapon Alert using Python language and libraries such as Bootstrap, Flask, etc. to be used in the preparation of this project.
 
-![ezgif-2-28d5dfc91e](https://user-images.githubusercontent.com/48666197/167089336-d91f3fe4-8412-4d98-942d-ea39a7b49400.gif)
 ![1651823368789](https://user-images.githubusercontent.com/48666197/167090136-4cfe7955-7e3f-431d-bf47-3df8bf53ed00.jpg)
 ![1651823388822](https://user-images.githubusercontent.com/48666197/167090143-5254d424-2364-4c01-a111-6fbafcde25fc.jpg)
 
